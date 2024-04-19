@@ -84,7 +84,7 @@
             <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>io.github.zaragozamartin91.HelloWorld</mainClass>
+                        <mainClass>io.github.zaragozamartin91.Main</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>
