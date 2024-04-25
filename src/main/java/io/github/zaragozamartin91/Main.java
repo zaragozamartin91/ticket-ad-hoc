@@ -36,7 +36,7 @@ public class Main {
         boxLayoutPoc2();
     }
 
-    private static List<SingleInput> singleInputs = new ArrayList<SingleInput>();
+    private static List<SingleProductInput> singleInputs = new ArrayList<SingleProductInput>();
 
     public static void boxLayoutPoc2() {
         JFrame frame = new JFrame("Imprimir ticket ad-hoc");
@@ -57,7 +57,7 @@ public class Main {
         inputAreaPanel.setLayout(new BoxLayout(inputAreaPanel, BoxLayout.PAGE_AXIS));
         inputAreaPanel.add(Box.createVerticalGlue());
 
-        SingleInput singleInputPanel = new SingleInput();
+        SingleProductInput singleInputPanel = new SingleProductInput();
         singleInputPanel.addTo(inputAreaPanel);
         singleInputs.add(singleInputPanel);
 
@@ -85,9 +85,9 @@ public class Main {
         buttonPane.add(printButton);
         buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        JButton addFieldButton = new JButton("Agregar linea");
+        JButton addFieldButton = new JButton("Agregar producto");
         addFieldButton.addActionListener((ActionEvent e) -> {
-            SingleInput singleInputPanel_2 = new SingleInput();
+            SingleProductInput singleInputPanel_2 = new SingleProductInput();
             singleInputPanel_2.addTo(inputAreaPanel);
             singleInputs.add(singleInputPanel_2);
 

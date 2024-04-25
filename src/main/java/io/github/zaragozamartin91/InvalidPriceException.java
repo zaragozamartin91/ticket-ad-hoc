@@ -1,11 +1,12 @@
 package io.github.zaragozamartin91;
 
 public class InvalidPriceException extends IllegalStateException {
-    InvalidPriceException(String msg, Throwable ex) {
-        super(msg, ex);
+
+    private String price;
+
+    public InvalidPriceException(String string, IllegalArgumentException e, String price) {
+        super(string, e);
+        this.price = price;
     }
     
-    InvalidPriceException(String msg) {
-        super(msg);
-    }
 }
