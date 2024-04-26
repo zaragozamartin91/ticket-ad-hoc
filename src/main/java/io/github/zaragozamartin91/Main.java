@@ -3,17 +3,13 @@ package io.github.zaragozamartin91;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -24,10 +20,8 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -36,30 +30,19 @@ public class Main {
         boxLayoutPoc2();
     }
 
-    private static List<SingleProductInput> singleInputs = new ArrayList<SingleProductInput>();
-
     public static void boxLayoutPoc2() {
         JFrame frame = new JFrame("Imprimir ticket ad-hoc");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setMinimumSize(new Dimension(640, 480));
 
         String[] printServicesNames = PrinterOutputStream.getListPrintServicesNames();
-
-        // Create a JList and set its model to display the printServicesNames array
-        JList<String> printServicesList = new JList<>(printServicesNames);
-        JScrollPane printerScrollPanel = new JScrollPane(printServicesList);
-        printerScrollPanel.setBorder(new EmptySymmetricBorder(StandardDimension.BORDER));
-        printerScrollPanel.setMinimumSize(new Dimension(0, 80));
+        PrinterPanel printerPanel = PrinterPanel.fromPrinterNames(printServicesNames);
 
         // Lay out the label and scroll pane from top to bottom.
-        JPanel inputAreaPanel = new JPanel();
-        inputAreaPanel.setBorder(new EmptySymmetricBorder(StandardDimension.BORDER));
-        inputAreaPanel.setLayout(new BoxLayout(inputAreaPanel, BoxLayout.PAGE_AXIS));
-        inputAreaPanel.add(Box.createVerticalGlue());
+        ProductInputPanel productInputPanel = new ProductInputPanel();
 
-        SingleProductInput singleInputPanel = new SingleProductInput();
-        singleInputPanel.addTo(inputAreaPanel);
-        singleInputs.add(singleInputPanel);
+        SingleProductInput singleProductInput = new SingleProductInput();
+        productInputPanel.addSingleProductInput(singleProductInput);
 
         // Lay out the buttons from left to right.
         JPanel buttonPane = new JPanel();
@@ -68,18 +51,43 @@ public class Main {
         buttonPane.add(Box.createHorizontalGlue());
         JButton printButton = new JButton("Imprimir");
         printButton.addActionListener(e -> {
-            String selectedPrinter = printServicesList.getSelectedValue();
-            if (selectedPrinter != null) {
-                System.out.println("Selected Printer: " + selectedPrinter);
-                List<String> lines = singleInputs.stream()
-                    .filter(si -> !si.getDescription().isEmpty() || !si.getPrice().isEmpty())
-                    .map(si -> si.getDescription() + " ... " + si.getPrice()).collect(Collectors.toList());
-                System.out.println("Printing " + lines);
-                if(!lines.isEmpty()) {new PrintLines().run(selectedPrinter, lines);}
-            } else {
+            String selectedPrinter = printerPanel.getSelectedValue();
+            if (selectedPrinter == null) {
                 JOptionPane.showMessageDialog(frame, "Seleccione una impresora!","Impresora vacia", JOptionPane.ERROR_MESSAGE);
                 System.out.println("No printer selected.");
+                return;
             }
+
+            System.out.println("Selected Printer: " + selectedPrinter);
+
+            List<String> lines = new ArrayList<>();
+            try {
+                lines = productInputPanel.normalizePurchaseItems();
+            } catch (InvalidQuantityException e1) {
+                JOptionPane.showMessageDialog(
+                    frame, 
+                    "Cantidad "+ e1.getQuantityInput() +" invalida!\nLa cantidad debe ser un numero mayor a 0",
+                    "Cantidad invalida", 
+                    JOptionPane.ERROR_MESSAGE
+                );
+            } catch (InvalidDescriptionException e2) {
+                JOptionPane.showMessageDialog(
+                    frame,
+                     "Detalle "+ e2.getDescription() +" invalido!\nEl detalle de un producto no puede ser vacio.",
+                    "Detalle invalido",
+                     JOptionPane.ERROR_MESSAGE
+                );
+            } catch (InvalidPriceException e3) {
+                JOptionPane.showMessageDialog(
+                    frame, 
+                    "Precio "+ e3.getPrice() +" invalido!\nPrecio debe contener 0, 1 o 2 posiciones decimales.\nEjemplos: 3 ; 3.5 ; 4.02 ; 5.0 ; 5.00",
+                    "Precio invalido", 
+                    JOptionPane.ERROR_MESSAGE
+                );
+            } 
+
+            System.out.println("Printing " + lines);
+            if(!lines.isEmpty()) {new PrintLines().run(selectedPrinter, lines);}
             
         });
         buttonPane.add(printButton);
@@ -87,9 +95,8 @@ public class Main {
 
         JButton addFieldButton = new JButton("Agregar producto");
         addFieldButton.addActionListener((ActionEvent e) -> {
-            SingleProductInput singleInputPanel_2 = new SingleProductInput();
-            singleInputPanel_2.addTo(inputAreaPanel);
-            singleInputs.add(singleInputPanel_2);
+            SingleProductInput singleProductInput_2 = new SingleProductInput();
+            productInputPanel.addSingleProductInput(singleProductInput_2);
 
             System.out.println("Adding field...");
             frame.pack(); // pack everything tight
@@ -112,8 +119,8 @@ public class Main {
         mainPanel.add(printerLabelPanel);
 
         
-        mainPanel.add(printerScrollPanel);
-        mainPanel.add(inputAreaPanel);        
+        mainPanel.add(printerPanel);
+        mainPanel.add(productInputPanel);        
 
         Container contentPane = frame;
         contentPane.add(mainPanel, BorderLayout.NORTH);

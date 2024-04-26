@@ -2,6 +2,8 @@ package io.github.zaragozamartin91;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.util.Optional;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -60,7 +62,21 @@ public class SingleProductInput extends JPanel {
         return priceField.getText().trim();
     }
 
-    public PurchaseItem toPurchaseItem() {
-        return PurchaseItem.fromRawInput(getQuantity(), getDescription(), getPrice());
+    public boolean isEmpty() {
+        return getQuantity().isEmpty() 
+            && getDescription().isEmpty() 
+            && getPrice().isEmpty();
+    }
+
+    public Optional<PurchaseItem> toPurchaseItem() {
+        if (this.isEmpty()) { return Optional.empty(); }
+        
+        PurchaseItem pi = PurchaseItem.fromRawInput(getQuantity(), getDescription(), getPrice());
+        return Optional.ofNullable(pi);
+    }
+
+    public String normalizePurchaseItem() {
+        FormatPurchaseItem formatPurchaseItem = new FormatPurchaseItem();
+        return this.toPurchaseItem().map(formatPurchaseItem).orElse("");
     }
 }

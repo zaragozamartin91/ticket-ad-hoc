@@ -3,7 +3,6 @@ package io.github.zaragozamartin91;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class PurchaseItem {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
@@ -58,6 +57,14 @@ public class PurchaseItem {
         } catch (IllegalArgumentException e) {
             throw new InvalidPriceException("Price " + price + " is invalid", e, price);
         }
+    }
+
+    public String normalizeQuantity() {
+        return String.valueOf(quantity);
+    }
+
+    public String normalizeUnitPrice() {
+        return DECIMAL_FORMAT.format(this.price);
     }
 
     public BigDecimal getTotalPrice() {
