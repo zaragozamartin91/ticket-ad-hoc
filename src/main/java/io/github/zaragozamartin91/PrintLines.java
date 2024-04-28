@@ -21,7 +21,6 @@ public class PrintLines {
             }
 
             escpos.writeLF("");
-            escpos.writeLF("Ticket no valido como factura");
 
             escpos.feed(5).cut(EscPos.CutMode.FULL);
             escpos.close();

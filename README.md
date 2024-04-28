@@ -7,3 +7,5 @@ Ejemplo de ticket a seguir
 
 
 Posible mejora: levantar los codigos del listapre para que el no tenga que escribir el nombre del producto sino el codigo del mismo
+
+Agregar checkbox para aplicar descuento

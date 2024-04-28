@@ -8,18 +8,21 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
@@ -44,11 +47,14 @@ public class Main {
         SingleProductInput singleProductInput = new SingleProductInput();
         productInputPanel.addSingleProductInput(singleProductInput);
 
+        
+        DiscountPanel discountPanel = new DiscountPanel();
+
         // Lay out the buttons from left to right.
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
-        buttonPane.add(Box.createHorizontalGlue());
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+        buttonPanel.add(Box.createHorizontalGlue());
         JButton printButton = new JButton("Imprimir");
         printButton.addActionListener(e -> {
             String selectedPrinter = printerPanel.getSelectedValue();
@@ -62,7 +68,16 @@ public class Main {
 
             List<String> lines = new ArrayList<>();
             try {
-                lines = productInputPanel.normalizePurchaseItems();
+                List<PurchaseItem> purchaseItems = productInputPanel.getPurchaseItems();
+                Discount discount = discountPanel.getDiscount();
+                LocalDateTime now = LocalDateTime.now();
+
+                if (purchaseItems.isEmpty()) {
+                    lines = new ArrayList<>();
+                } else {
+                    Receipt receipt = new Receipt(now, purchaseItems, discount);
+                    lines = receipt.getLines();
+                }
             } catch (InvalidQuantityException e1) {
                 JOptionPane.showMessageDialog(
                     frame, 
@@ -80,18 +95,30 @@ public class Main {
             } catch (InvalidPriceException e3) {
                 JOptionPane.showMessageDialog(
                     frame, 
-                    "Precio "+ e3.getPrice() +" invalido!\nPrecio debe contener 0, 1 o 2 posiciones decimales.\nEjemplos: 3 ; 3.5 ; 4.02 ; 5.0 ; 5.00",
+                    "Precio "+ e3.getPrice() +" invalido!\nPrecio debe ser un valor numerico con 0, 1 o 2 posiciones decimales.\nEjemplos: 3 ; 3.5 ; 4.02 ; 5.0 ; 5.00",
                     "Precio invalido", 
+                    JOptionPane.ERROR_MESSAGE
+                );
+            } catch (InvalidDiscountException e3) {
+                JOptionPane.showMessageDialog(
+                    frame, 
+                    "Descuento "+ e3.getPrice() +" invalido!\nDescuento debe ser un valor porrcentual con 0, 1 o 2 posiciones decimales.\nEjemplos: 10 ; 12.3 ; 13.05",
+                    "Descuento invalido", 
                     JOptionPane.ERROR_MESSAGE
                 );
             } 
 
-            System.out.println("Printing " + lines);
-            if(!lines.isEmpty()) {new PrintLines().run(selectedPrinter, lines);}
-            
+            if (lines.isEmpty()) {
+                System.out.println("Nothing to print...");
+                return;
+            }
+
+            System.out.println("Printing...");
+            lines.forEach(System.out::println);
+            new PrintLines().run(selectedPrinter, lines);
         });
-        buttonPane.add(printButton);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(printButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
         JButton addFieldButton = new JButton("Agregar producto");
         addFieldButton.addActionListener((ActionEvent e) -> {
@@ -102,13 +129,13 @@ public class Main {
             frame.pack(); // pack everything tight
             frame.setVisible(true); // refresh the view
         });
-        buttonPane.add(addFieldButton);
-
+        buttonPanel.add(addFieldButton);
+        
         // Put everything together, using the content pane's BorderLayout.
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
         mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        mainPanel.add(buttonPane);
+        mainPanel.add(buttonPanel);
 
         JLabel printerLabel = new JLabel("Impresoras");
         JPanel printerLabelPanel = new JPanel();
@@ -120,6 +147,7 @@ public class Main {
 
         
         mainPanel.add(printerPanel);
+        mainPanel.add(discountPanel);
         mainPanel.add(productInputPanel);        
 
         Container contentPane = frame;

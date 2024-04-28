@@ -2,6 +2,7 @@ package io.github.zaragozamartin91;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.swing.Box;
@@ -32,6 +33,14 @@ public class ProductInputPanel extends JPanel {
         return singleInputs.stream()
             .map(SingleProductInput::normalizePurchaseItem)
             .filter(s -> !s.isEmpty())
+            .collect(Collectors.toList());
+    }
+
+    public List<PurchaseItem> getPurchaseItems() {
+        return singleInputs.stream()
+            .map(SingleProductInput::toPurchaseItem)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .collect(Collectors.toList());
     }
 }
