@@ -3,12 +3,15 @@ package io.github.zaragozamartin91;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class SingleProductInput extends JPanel {
     private static final int PADDING = 10;
@@ -18,7 +21,7 @@ public class SingleProductInput extends JPanel {
     private final JTextField descriptionField;
     private final JTextField priceField;
 
-    SingleProductInput() {
+    SingleProductInput(Consumer<PurchaseItem> pConsumer) {
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         this.setBorder(new EmptySymmetricBorder(BORDER_SIZE));
 
@@ -42,6 +45,27 @@ public class SingleProductInput extends JPanel {
         this.add(Box.createRigidArea(new Dimension(PADDING, 0)));
         priceField = new JTextField();
         priceField.setColumns(4);
+
+        // https://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
+        priceField.getDocument().addDocumentListener(new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) {
+              onChange();
+            }
+            public void removeUpdate(DocumentEvent e) {
+              onChange();
+            }
+            public void insertUpdate(DocumentEvent e) {
+              onChange();
+            }
+          
+            public void onChange() {
+                try {
+                    SingleProductInput.this.toPurchaseItem().ifPresent(pConsumer);
+                } catch (Exception e) {
+                    System.err.println("On price change :: failed to parse purchase item");
+                }
+            }
+          });
         this.add(priceField);
     }
 
@@ -75,8 +99,9 @@ public class SingleProductInput extends JPanel {
         return Optional.ofNullable(pi);
     }
 
-    public String normalizePurchaseItem() {
-        FormatPurchaseItem formatPurchaseItem = new FormatPurchaseItem();
-        return this.toPurchaseItem().map(formatPurchaseItem).orElse("");
+    public void clear() {
+        quantityField.setText("");
+        descriptionField.setText("");
+        priceField.setText("");
     }
 }

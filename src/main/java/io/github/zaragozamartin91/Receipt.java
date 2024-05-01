@@ -20,6 +20,8 @@ public class Receipt {
     private final List<PurchaseItem> purchaseItems;
     private Discount discount;
 
+    FormatPrice formatPrice = new FormatPrice();
+
     public List<PurchaseItem> getPurchaseItems() {
         return purchaseItems;
     }
@@ -38,6 +40,9 @@ public class Receipt {
 
         // Fecha 25/01/2024
         String formattedDate = DATE_FORMATTER.format(now);
+        lines.add(" ");
+        lines.add("Ferreteria");
+        lines.add(" ");
         lines.add("Fecha: " + formattedDate);
         lines.add(" ");
 
@@ -57,19 +62,19 @@ public class Receipt {
         lines.add(" ");
 
         BigDecimal fullPrice = PurchaseItem.getFullPrice(purchaseItems);
-        String fullPriceText = DECIMAL_FORMAT.format(fullPrice);
+        String fullPriceText = formatPrice.apply(fullPrice);
         String fullPricePrompt = StringBlock.padRight("Subtotal:", 12).getValue();
         lines.add(fullPricePrompt + StringBlock.padLeft(fullPriceText, 16).getValue());
 
 
         BigDecimal discountAmount = discount.calculateAmount(fullPrice);
-        String discountAmountText = DECIMAL_FORMAT.format(discountAmount);
+        String discountAmountText = formatPrice.apply(discountAmount);
         String discountPrompt = StringBlock.padRight("Descuento:", 12).getValue();
         lines.add(discountPrompt + StringBlock.padLeft(discountAmountText, 16).getValue());
 
 
         BigDecimal totalPrice = discount.apply(fullPrice);
-        String totalPriceText = DECIMAL_FORMAT.format(totalPrice);
+        String totalPriceText = formatPrice.apply(totalPrice);
         String totalPricePrompt = StringBlock.padRight("Total:", 12).getValue();
         lines.add(totalPricePrompt + StringBlock.padLeft(totalPriceText, 16).getValue());
 

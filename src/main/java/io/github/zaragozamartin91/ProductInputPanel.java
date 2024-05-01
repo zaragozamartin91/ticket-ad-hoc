@@ -1,5 +1,6 @@
 package io.github.zaragozamartin91;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,22 +26,19 @@ public class ProductInputPanel extends JPanel {
         return this;
     }
 
-    public List<SingleProductInput> getInputs() {
-        return new ArrayList<>(singleInputs);
-    }
-
-    public List<String> normalizePurchaseItems() {
-        return singleInputs.stream()
-            .map(SingleProductInput::normalizePurchaseItem)
-            .filter(s -> !s.isEmpty())
-            .collect(Collectors.toList());
-    }
-
     public List<PurchaseItem> getPurchaseItems() {
         return singleInputs.stream()
             .map(SingleProductInput::toPurchaseItem)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toList());
+    }
+
+    public BigDecimal getFullPrice() {
+        return PurchaseItem.getFullPrice(getPurchaseItems());
+    }
+
+    public void clear() {
+        singleInputs.stream().forEach(SingleProductInput::clear);
     }
 }

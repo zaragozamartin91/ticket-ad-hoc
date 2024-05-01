@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 public class Price {
-    private static final String PRICE_REGEX = "\\d+\\.?\\d{1,2}";
+    private static final String PRICE_REGEX = "\\d+(\\.\\d{1,2})?";
 
     private BigDecimal price;
 

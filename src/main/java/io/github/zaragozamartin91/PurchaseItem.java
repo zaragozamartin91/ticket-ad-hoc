@@ -71,4 +71,9 @@ public class PurchaseItem {
     public static BigDecimal getFullPrice(List<PurchaseItem> purchaseItems) {
         return purchaseItems.stream().map(PurchaseItem::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    @Override
+    public String toString() {
+        return "PurchaseItem [quantity=" + quantity + ", description=" + description + ", price=" + price + "]";
+    }
 }
