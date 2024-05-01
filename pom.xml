@@ -6,21 +6,20 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.github.zaragozamartin91</groupId>
-  <artifactId>thermal-printer</artifactId>
+  <artifactId>ticket-ad-hoc</artifactId>
   <version>1</version>
 
-  <name>thermal-printer</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <name>ticket-ad-hoc</name>
+  <url>https://github.com/zaragozamartin91/ticket-ad-hoc</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <customFinalName>ticket-ad-hoc-${project.version}</customFinalName>
-    <customFinalNameWithDependencies>ticket-ad-hoc-${project.version}-jar-with-dependencies</customFinalNameWithDependencies>
+    <customFinalName>${project.artifactId}-${project.version}</customFinalName>
+    <customFinalNameWithDependencies>${project.artifactId}-${project.version}-jar-with-dependencies</customFinalNameWithDependencies>
     <releaseDir>${project.basedir}/release</releaseDir>
-    <zipFileName>ticket-ad-hoc.zip</zipFileName>
+    <zipFileName>${project.artifactId}.zip</zipFileName>
   </properties>
 
   <dependencies>
@@ -131,14 +130,15 @@
               <goal>run</goal>
             </goals>
             <configuration>
-              <tasks>
+              <target>
                 <mkdir dir="${releaseDir}"/> <!-- Create the release directory if it doesn't exist -->
-                <move file="${project.build.directory}/${customFinalNameWithDependencies}.jar" tofile="${releaseDir}/ticket-ad-hoc.jar" />
+                <move file="${project.build.directory}/${customFinalNameWithDependencies}.jar" tofile="${releaseDir}/${project.artifactId}.jar" />
+                <copy file="${project.basedir}/imprimir-ticket.bat" tofile="${releaseDir}/imprimir-ticket.bat" />
                 <!-- Create a ZIP archive of the release directory -->
                 <zip destfile="${project.basedir}/${zipFileName}">
                   <fileset dir="${releaseDir}"/>
                 </zip>
-              </tasks>
+              </target>
             </configuration>
           </execution>
         </executions>
