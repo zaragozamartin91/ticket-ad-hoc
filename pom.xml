@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
@@ -16,6 +17,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <customFinalName>ticket-ad-hoc-${project.version}</customFinalName>
+    <customFinalNameWithDependencies>ticket-ad-hoc-${project.version}-jar-with-dependencies</customFinalNameWithDependencies>
+    <releaseDir>${project.basedir}/release</releaseDir>
+    <zipFileName>ticket-ad-hoc.zip</zipFileName>
   </properties>
 
   <dependencies>
@@ -28,20 +33,26 @@
 
     <dependency>
       <groupId>com.github.anastaciocintra</groupId>
-        <artifactId>escpos-coffee</artifactId>
-        <version>4.1.0</version>
-      </dependency>
+      <artifactId>escpos-coffee</artifactId>
+      <version>4.1.0</version>
+    </dependency>
   </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+    <finalName>
+      ${customFinalName}
+    </finalName>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to
+      parent pom) -->
       <plugins>
-        <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
+        <!-- clean lifecycle, see
+        https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.1.0</version>
         </plugin>
-        <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+        <!-- default lifecycle, jar packaging: see
+        https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.0.2</version>
@@ -66,7 +77,8 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>2.8.2</version>
         </plugin>
-        <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
+        <!-- site lifecycle, see
+        https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
         <plugin>
           <artifactId>maven-site-plugin</artifactId>
           <version>3.7.1</version>
@@ -75,32 +87,62 @@
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>1.8</version> <!-- use the latest version -->
+        </plugin>
       </plugins>
     </pluginManagement>
 
     <plugins>
-        <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>io.github.zaragozamartin91.Main</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>move-file</id>
+            <phase>package</phase> <!-- This runs during the package phase -->
+            <goals>
+              <goal>run</goal>
+            </goals>
             <configuration>
-                <archive>
-                    <manifest>
-                        <mainClass>io.github.zaragozamartin91.Main</mainClass>
-                    </manifest>
-                </archive>
-                <descriptorRefs>
-                    <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
+              <tasks>
+                <mkdir dir="${releaseDir}"/> <!-- Create the release directory if it doesn't exist -->
+                <move file="${project.build.directory}/${customFinalNameWithDependencies}.jar" tofile="${releaseDir}/ticket-ad-hoc.jar" />
+                <!-- Create a ZIP archive of the release directory -->
+                <zip destfile="${project.basedir}/${zipFileName}">
+                  <fileset dir="${releaseDir}"/>
+                </zip>
+              </tasks>
             </configuration>
-            <executions>
-                <execution>
-                    <id>make-assembly</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+          </execution>
+        </executions>
+      </plugin>
 
     </plugins>
   </build>
