@@ -11,6 +11,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class DiscountPanel extends JPanel {
     private static final String DEFAULT_DISCOUNT_TEXT = "10.00";
@@ -38,6 +40,22 @@ public class DiscountPanel extends JPanel {
                 onCheckboxToggle.accept(s.isSelected());
             }
         });
+
+        
+        DocumentListener discountInputChangeListener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) { onChange(); }
+            public void removeUpdate(DocumentEvent e) { onChange(); }
+            public void insertUpdate(DocumentEvent e) { onChange(); }
+            
+            public void onChange() {
+                try {
+                    onCheckboxToggle.accept(true);
+                } catch (Exception e) {
+                    System.err.println("On discount change :: failed to call listener");
+                }
+            }
+        };
+        discountPercentageInput.getDocument().addDocumentListener(discountInputChangeListener);
     }
 
     public Discount getDiscount() {

@@ -25,10 +25,26 @@ public class SingleProductInput extends JPanel {
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         this.setBorder(new EmptySymmetricBorder(BORDER_SIZE));
 
+        // https://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
+        DocumentListener quantityOrPriceChangeListener = new DocumentListener() {
+            public void changedUpdate(DocumentEvent e) { onChange(); }
+            public void removeUpdate(DocumentEvent e) { onChange(); }
+            public void insertUpdate(DocumentEvent e) { onChange(); }
+            
+            public void onChange() {
+                try {
+                    SingleProductInput.this.toPurchaseItem().ifPresent(pConsumer);
+                } catch (Exception e) {
+                    System.err.println("On quantity or price change :: failed to parse purchase item");
+                }
+            }
+        };
+
         this.add(new JLabel("Cantidad"));
         this.add(Box.createRigidArea(new Dimension(PADDING, 0)));
         quantityField = new JTextField();
         quantityField.setColumns(2);
+        quantityField.getDocument().addDocumentListener(quantityOrPriceChangeListener);
         this.add(quantityField);
 
         this.add(Box.createRigidArea(new Dimension(PADDING, 0)));
@@ -45,27 +61,7 @@ public class SingleProductInput extends JPanel {
         this.add(Box.createRigidArea(new Dimension(PADDING, 0)));
         priceField = new JTextField();
         priceField.setColumns(4);
-
-        // https://stackoverflow.com/questions/3953208/value-change-listener-to-jtextfield
-        priceField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-              onChange();
-            }
-            public void removeUpdate(DocumentEvent e) {
-              onChange();
-            }
-            public void insertUpdate(DocumentEvent e) {
-              onChange();
-            }
-          
-            public void onChange() {
-                try {
-                    SingleProductInput.this.toPurchaseItem().ifPresent(pConsumer);
-                } catch (Exception e) {
-                    System.err.println("On price change :: failed to parse purchase item");
-                }
-            }
-          });
+        priceField.getDocument().addDocumentListener(quantityOrPriceChangeListener);
         this.add(priceField);
     }
 

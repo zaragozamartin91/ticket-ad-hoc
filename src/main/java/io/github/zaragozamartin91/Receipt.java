@@ -1,20 +1,17 @@
 package io.github.zaragozamartin91;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Receipt {
-    private static final int TOTAL_PRICE_LENGTH = 12;
-    private static final int UNIT_PRICE_LENGTH = 12;
-    private static final int DESCRIPTION_LENGTH = 20;
-    private static final int QUANTITY_LENGTH = 6;
+    private static final String EMPTY_LINE = " ";
+    private static final int MAX_LINE_LENGTH = 32;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     private final LocalDateTime now;
     private final List<PurchaseItem> purchaseItems;
@@ -40,26 +37,21 @@ public class Receipt {
 
         // Fecha 25/01/2024
         String formattedDate = DATE_FORMATTER.format(now);
-        lines.add(" ");
+        lines.add(EMPTY_LINE);
         lines.add("Ferreteria");
-        lines.add(" ");
+        lines.add(EMPTY_LINE);
         lines.add("Fecha: " + formattedDate);
-        lines.add(" ");
-
-        List<String> lineItems = writeLineItems();
-        int maxLineItemLenght = lineItems.stream().mapToInt(String::length).max().orElse(0);
-        String headers = writeHeaders();
-        int divisionLineLength = Math.max(maxLineItemLenght, headers.length());
+        lines.add(EMPTY_LINE);
 
         // Cant.    Descripcion     SubTot.     Total
-        lines.add(headers);
+        lines.addAll(writeHeaders());
         // -------------------------------------
-        lines.add(drawLine(divisionLineLength)); 
-        lines.addAll(lineItems);
-        lines.add(drawLine(divisionLineLength));
+        lines.add(drawLine(MAX_LINE_LENGTH)); 
+        lines.addAll(writeLineItems());
+        lines.add(drawLine(MAX_LINE_LENGTH));
         // -------------------------------------
 
-        lines.add(" ");
+        lines.add(EMPTY_LINE);
 
         BigDecimal fullPrice = PurchaseItem.getFullPrice(purchaseItems);
         String fullPriceText = formatPrice.apply(fullPrice);
@@ -87,12 +79,10 @@ public class Receipt {
     }
 
     private List<String> writeLineItems() {
-        return purchaseItems.stream().map(purchaseItem -> {
-            String quantity = StringBlock.padRight(purchaseItem.normalizeQuantity(), QUANTITY_LENGTH).getValue();
-            String description = StringBlock.padRight(purchaseItem.getDescription(), DESCRIPTION_LENGTH).getValue();
-            String unitPrice = StringBlock.padRight(purchaseItem.normalizeUnitPrice(), UNIT_PRICE_LENGTH).getValue();
-            String totalPrice = StringBlock.padRight(purchaseItem.normalizeTotalPrice(), TOTAL_PRICE_LENGTH).getValue();
-            return quantity + description + unitPrice + totalPrice;
+        return purchaseItems.stream().flatMap(pi -> {
+            String description = truncate(pi.getDescription());
+            String priceFormula = String.format("%s x %s = %s", pi.normalizeQuantity(), pi.normalizeUnitPrice(), pi.normalizeTotalPrice());
+            return Stream.of(description, priceFormula, EMPTY_LINE);
         }).collect(Collectors.toList());
     }
 
@@ -102,12 +92,15 @@ public class Receipt {
         return sb.toString();
     }
 
-    private String writeHeaders() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(StringBlock.padRight("Cant.", QUANTITY_LENGTH).getValue());
-        sb.append(StringBlock.padRight("Descripcion", DESCRIPTION_LENGTH).getValue());
-        sb.append(StringBlock.padRight("SubTot.", UNIT_PRICE_LENGTH).getValue());
-        sb.append(StringBlock.padRight("Total", TOTAL_PRICE_LENGTH).getValue());
-        return sb.toString();
+    private List<String> writeHeaders() {
+        return Stream.of(
+            "Descripcion",
+            "Cant x Precio = Total"
+        ).collect(Collectors.toList());
+    }
+
+    private String truncate(String s) {
+        if (s.isEmpty()) return s;
+        return s.substring(0, Math.min(s.length(), MAX_LINE_LENGTH));
     }
 }

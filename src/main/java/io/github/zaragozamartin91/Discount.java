@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 public class Discount {
-    private static final String DISCOUNT_REGEX = "\\d+\\.?\\d{1,2}";
+    private static final String DISCOUNT_REGEX = "\\d+(\\.\\d{1,2})?";
     private static final BigDecimal ONE_HUNDRED = BigDecimal.valueOf(100L);
     private static final BigDecimal ONE = BigDecimal.valueOf(1L);
 

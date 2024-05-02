@@ -30,9 +30,9 @@ public class AmountsPanel extends JPanel {
         discountAmount = BigDecimal.ZERO;
         netPriceAmount = BigDecimal.ZERO;
 
-        fullPriceLabel = new JLabel("Subtotal: " + format(fullPriceAmount));
-        discountLabel = new JLabel("Descuento: " + format(discountAmount));
-        netPriceLabel = new JLabel("Total: " + format(netPriceAmount));
+        fullPriceLabel = new JLabel(formatLabel("Subtotal: ", doFormatPrice(fullPriceAmount)));
+        discountLabel = new JLabel(formatLabel("Descuento: ", doFormatPrice(discountAmount)));
+        netPriceLabel = new JLabel(formatLabel("Total: ", doFormatPrice(netPriceAmount)));
 
         
         this.add(fullPriceLabel);
@@ -51,23 +51,27 @@ public class AmountsPanel extends JPanel {
         return Box.createRigidArea(new Dimension(12, 0));
     }
 
-    String format(BigDecimal bd) {
-        return StringBlock.padLeft(formatPrice.apply(bd), 24).getValue();
+    String doFormatPrice(BigDecimal bd) {
+        return formatPrice.apply(bd);
+    }
+
+    String formatLabel(String prefix, String suffix) {
+        return prefix.concat(StringBlock.padRight(suffix, 24).getValue());
     }
 
     public void setFullPriceAmount(BigDecimal fullPriceAmount) {
         this.fullPriceAmount = fullPriceAmount;
-        fullPriceLabel.setText("Subtotal: " + format(fullPriceAmount));
+        fullPriceLabel.setText(formatLabel("Subtotal: ", doFormatPrice(fullPriceAmount)));
     }
 
     public void setDiscountAmount(BigDecimal discountAmount) {
         this.discountAmount = discountAmount;
-        discountLabel.setText("Descuento: " + format(discountAmount));
+        discountLabel.setText(formatLabel("Descuento: ", doFormatPrice(discountAmount)));
     }
 
     public void setNetPriceAmount(BigDecimal netPriceAmount) {
         this.netPriceAmount = netPriceAmount;
-        netPriceLabel.setText("Total: " + format(netPriceAmount));
+        netPriceLabel.setText(formatLabel("Total: ", doFormatPrice(netPriceAmount)));
     }
 
     public void clear() {

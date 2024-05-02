@@ -63,7 +63,7 @@ public class Application implements Runnable {
 
             String selectedPrinter = printerPanel.getSelectedValue();
             if (selectedPrinter == null) {
-                showErrorMessage("Seleccione una impresora de la lista PER FAVORE!","Impresora vacia");
+                showErrorMessage("Seleccione una impresora de la lista!","Impresora vacia");
                 System.out.println("No printer selected.");
                 return;
             }
