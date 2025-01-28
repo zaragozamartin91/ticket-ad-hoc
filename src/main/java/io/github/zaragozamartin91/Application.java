@@ -32,9 +32,17 @@ public class Application implements Runnable {
     JPanel mainPanel;
 
     String[] printServicesNames;
+    ApplicationProperties applicationProperties;
 
     Application() {
         printServicesNames = PrinterOutputStream.getListPrintServicesNames();
+        
+        try {
+            applicationProperties = ApplicationProperties.load();
+        } catch (Exception e) {
+            System.err.println(e);
+            applicationProperties = ApplicationProperties.empty();
+        }
     }
 
     public void run() {
@@ -144,7 +152,7 @@ public class Application implements Runnable {
         mainPanel.add(printerPanel);
         mainPanel.add(discountPanel);
         mainPanel.add(amountsPanel);
-        addSingleProductInput();
+        SingleProductInput firstProductInput = addSingleProductInput();
         mainPanel.add(productInputPanel);        
 
         Container contentPane = frame;
@@ -155,9 +163,14 @@ public class Application implements Runnable {
         // Make the frame visible
         frame.setVisible(true);
         frame.pack();
+
+        // Set focus on first field of the first product input
+        firstProductInput.resetCursor();
+        // Set the default printer
+        printerPanel.setSelectedIndex(applicationProperties.defaultPrinterIndex());
     }
 
-    private void addSingleProductInput() {
+    private SingleProductInput addSingleProductInput() {
         SingleProductInput singleProductInput = new SingleProductInput(_purchaseItem -> {
             refreshAmountLabels();
         });
@@ -166,6 +179,7 @@ public class Application implements Runnable {
         System.out.println("Adding field...");
         frame.pack(); // pack everything tight
         frame.setVisible(true); // refresh the view
+        return singleProductInput;
     }
 
     private void refreshAmountLabels() {

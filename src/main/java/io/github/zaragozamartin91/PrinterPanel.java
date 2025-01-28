@@ -34,4 +34,8 @@ public class PrinterPanel extends JScrollPane {
     public String getSelectedValue() {
         return printServicesList.getSelectedValue();
     }
+
+    public void setSelectedIndex(int index) {
+        printServicesList.setSelectedIndex(index);
+    }
 }

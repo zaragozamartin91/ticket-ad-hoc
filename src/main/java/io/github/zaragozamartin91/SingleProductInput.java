@@ -65,6 +65,10 @@ public class SingleProductInput extends JPanel {
         this.add(priceField);
     }
 
+    void resetCursor() {
+        quantityField.grabFocus();
+    }
+
     SingleProductInput addTo(Container container) {
         container.add(this);
         return this;

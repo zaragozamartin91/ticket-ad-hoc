@@ -23,7 +23,6 @@ public class Main {
         new Application().run();
     }
 
-
     private static void consolePoc(String[] args) throws IOException, UnsupportedEncodingException {
         new PrinterConsolePoc().accept(args);
     }

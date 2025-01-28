@@ -134,6 +134,7 @@
                 <mkdir dir="${releaseDir}"/> <!-- Create the release directory if it doesn't exist -->
                 <move file="${project.build.directory}/${customFinalNameWithDependencies}.jar" tofile="${releaseDir}/${project.artifactId}.jar" />
                 <copy file="${project.basedir}/imprimir-ticket.bat" tofile="${releaseDir}/imprimir-ticket.bat" />
+                <copy file="${project.basedir}/ticket-ad-hoc-config.properties" tofile="${releaseDir}/ticket-ad-hoc-config.properties" />
                 <!-- Create a ZIP archive of the release directory -->
                 <zip destfile="${project.basedir}/${zipFileName}">
                   <fileset dir="${releaseDir}"/>
